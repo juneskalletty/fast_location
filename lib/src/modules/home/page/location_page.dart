@@ -4,13 +4,13 @@ import 'package:map_launcher/map_launcher.dart';
 class LocationPage extends StatelessWidget {
   final Map<String, dynamic> locationData;
 
-  LocationPage({required this.locationData});
+  const LocationPage({super.key, required this.locationData});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Fast Location"),
+        title: const Text("Fast Location"),
         backgroundColor: Colors.green,
       ),
       body: Padding(
@@ -18,36 +18,36 @@ class LocationPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               "Dados da Localização",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             _buildLocationInfo("Logradouro/Rua:", locationData['logradouro']),
             _buildLocationInfo("Bairro/Distrito:", locationData['bairro']),
             _buildLocationInfo("Cidade/UF:", "${locationData['localidade']}/${locationData['uf']}"),
             _buildLocationInfo("CEP:", locationData['cep']),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 _launchMap(locationData);
               },
-              child: Text('Localizar endereço'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,  // Define a cor de fundo do botão
-                foregroundColor: Colors.white,  // Define a cor do texto do botão
+                backgroundColor: Colors.green,  // define a cor de fundo do botão
+                foregroundColor: Colors.white,  // define a cor do texto do botão
               ),
+              child: const Text('Localizar endereço'),
             ),
-            Spacer(),
+            const Spacer(),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Voltar para Início'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,  // Define a cor de fundo do botão
-                foregroundColor: Colors.white,  // Define a cor do texto do botão
+                backgroundColor: Colors.green,  // define a cor de fundo do botão
+                foregroundColor: Colors.white,  // define a cor do texto do botão
               ),
+              child: const Text('Voltar para Início'),
             ),
           ],
         ),
@@ -55,7 +55,7 @@ class LocationPage extends StatelessWidget {
     );
   }
 
-  // Função que exibe as informações de localização
+  // funcao que exibe as informacoes de localizacao
   Widget _buildLocationInfo(String label, String? value) {
     return value != null
         ? Column(
@@ -63,16 +63,16 @@ class LocationPage extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
               ),
-              Text(value, style: TextStyle(fontSize: 16)),
-              SizedBox(height: 10),
+              Text(value, style: const TextStyle(fontSize: 16)),
+              const SizedBox(height: 10),
             ],
           )
-        : SizedBox.shrink();
+        : const SizedBox.shrink();
   }
 
-  // Função que redireciona para o Google Maps
+  // Funcao que redireciona para o Google Maps
   void _launchMap(Map<String, dynamic> locationData) async {
     final availableMaps = await MapLauncher.installedMaps;
 
