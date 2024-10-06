@@ -19,7 +19,7 @@ class App extends StatelessWidget {
       ),
       home: const HomePage(title: 'Fast Location'),
       routes: {
-        '/history': (context) => CepHistoryPage(),
+        '/history': (context) => const CepHistoryPage(),
       },
     );
   }

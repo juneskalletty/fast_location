@@ -35,7 +35,7 @@ class HomePage extends StatelessWidget {
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
               ),
-              child: Text('Localizar endereço'),
+              child: const Text('Localizar endereço'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -46,7 +46,7 @@ class HomePage extends StatelessWidget {
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
               ),
-              child: Text('Histórico de endereços'),
+              child: const Text('Histórico de endereços'),
             ),
           ],
         ),
