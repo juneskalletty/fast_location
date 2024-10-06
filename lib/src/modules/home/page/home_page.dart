@@ -2,7 +2,8 @@ import 'package:fast_location/src/http/dio_config.dart';
 import 'package:fast_location/src/modules/home/services/cep_history_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fast_location/src/models/cep_history.dart';
-import 'package:map_launcher/map_launcher.dart'; // Import map_launcher
+import 'package:map_launcher/map_launcher.dart';
+import 'package:geocoding/geocoding.dart'; // Importação para obter coordenadas
 
 class HomePage extends StatelessWidget {
   final String title;
@@ -54,6 +55,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  // Mostra o input para o usuário digitar o CEP
   void _showCepInputDialog(BuildContext context) {
     String cep = '';
     showDialog(
@@ -82,14 +84,17 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  // Método que busca o CEP e exibe o resultado
   Future<void> _searchCep(BuildContext context, String cep) async {
     try {
+      print("Iniciando a busca do CEP: $cep");
       final response = await DioConfig.getCep(cep);
+      print("Endereço retornado: $response");
 
-      // casting explicito para Map<String, dynamic>
+      // Casting explícito para Map<String, dynamic>
       Map<String, dynamic> address = response as Map<String, dynamic>;
 
-      // criar e salvar o historico de CEP
+      // Criar e salvar o histórico de CEP
       CepHistory cepHistory = CepHistory(
         cep: cep,
         logradouro: address['logradouro'],
@@ -101,7 +106,7 @@ class HomePage extends StatelessWidget {
 
       await saveCepToHistory(cepHistory);
 
-      // exibir resultado e perguntar se quer abrir no mapa
+      // Exibir resultado e perguntar se quer abrir no mapa
       showDialog(
         context: context,
         builder: (context) {
@@ -120,8 +125,8 @@ class HomePage extends StatelessWidget {
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  // Abrir o endereço no Google Maps
-                  await _openInMaps(address['localidade'], address['uf']);
+                  // Chamar função para abrir o endereço no mapa
+                  await _openInMaps(address['logradouro'], address['localidade']);
                 },
                 child: const Text('Abrir no Mapa'),
               ),
@@ -130,6 +135,7 @@ class HomePage extends StatelessWidget {
         },
       );
     } catch (e) {
+      print("Erro na busca do CEP: $e");
       showDialog(
         context: context,
         builder: (context) {
@@ -150,18 +156,26 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Future<void> _openInMaps(String localidade, String uf) async {
+  // Função para abrir o endereço no Google Maps
+  Future<void> _openInMaps(String logradouro, String localidade) async {
     try {
-      // verifica se o google maps esta disponivel
-      if (await MapLauncher.isMapAvailable(MapType.google) ?? false) {
-        await MapLauncher.showMarker(
-          mapType: MapType.google,
-          coords: Coords(0, 0), // aqui pode passar as coordenadas
-          title: "$localidade, $uf",
-          description: "Endereço buscado",
-        );
-      } else {
-        print('Google Maps não está disponível.');
+      // Obter as coordenadas a partir do endereço
+      List<Location> locations = await locationFromAddress('$logradouro, $localidade');
+
+      if (locations.isNotEmpty) {
+        Location location = locations.first;
+
+        // Verifica se o Google Maps está disponível
+        if (await MapLauncher.isMapAvailable(MapType.google) ?? false) {
+          await MapLauncher.showMarker(
+            mapType: MapType.google,
+            coords: Coords(location.latitude, location.longitude),
+            title: "$logradouro, $localidade",
+            description: "Endereço buscado",
+          );
+        } else {
+          print('Google Maps não está disponível.');
+        }
       }
     } catch (e) {
       print('Erro ao abrir o mapa: $e');

@@ -14,7 +14,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Fast Location',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.green,
         useMaterial3: true,
       ),
       home: const HomePage(title: 'Fast Location'),
