@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-part 'cep_history.g.dart'; // necessario para gerar o adaptador Hive
+part 'cep_history.g.dart';
 
 @HiveType(typeId: 0)
 class CepHistory extends HiveObject {

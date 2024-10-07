@@ -55,7 +55,6 @@ class LocationPage extends StatelessWidget {
     );
   }
 
-  // funcao que exibe as informacoes de localizacao
   Widget _buildLocationInfo(String label, String? value) {
     return value != null
         ? Column(
@@ -72,7 +71,6 @@ class LocationPage extends StatelessWidget {
         : const SizedBox.shrink();
   }
 
-  // Funcao que redireciona para o Google Maps
   void _launchMap(Map<String, dynamic> locationData) async {
     final availableMaps = await MapLauncher.installedMaps;
 

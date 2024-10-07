@@ -9,7 +9,6 @@ class DioConfig {
     ),
   );
 
-  // Método para buscar o CEP
   static Future<Map<String, dynamic>> getCep(String cep) async {
     try {
       final response = await _dio.get('$cep/json/');
