@@ -2,10 +2,9 @@ import 'package:fast_location/src/http/dio_config.dart';
 import 'package:fast_location/src/modules/home/services/cep_history_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fast_location/src/models/cep_history.dart';
-import 'package:map_launcher/map_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -95,7 +94,48 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Método que busca o CEP e exibe o resultado
+  Future<void> _openInMaps(String address) async {
+    try {
+      if (address.isEmpty) {
+        throw 'Endereço está vazio.';
+      }
+
+      print('Endereço para geocodificação: $address');
+
+      // Usando Nominatim API do OpenStreetMap
+      String apiUrl =
+          'https://nominatim.openstreetmap.org/search?q=$address&format=json';
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        print('Dados recebidos da geocodificação: $data');
+        if (data.isEmpty) {
+          throw 'Nenhuma localização encontrada para o endereço fornecido.';
+        }
+
+        var location = data[0];
+        double latitude = double.parse(location['lat']);
+        double longitude = double.parse(location['lon']);
+        print('Latitude: $latitude, Longitude: $longitude');
+
+        // Abrir Google Maps diretamente com URL
+        String googleMapsUrl =
+            'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
+        if (await canLaunch(googleMapsUrl)) {
+          await launch(googleMapsUrl);
+        } else {
+          throw 'Não foi possível abrir o Google Maps.';
+        }
+      } else {
+        throw 'Erro na solicitação: ${response.statusCode}';
+      }
+    } catch (e) {
+      print('Erro ao abrir o mapa: $e');
+    }
+  }
+
+// Método que busca o CEP e exibe o resultado
   Future<void> _searchCep(BuildContext context, String cep) async {
     try {
       final response = await DioConfig.getCep(cep);
@@ -134,7 +174,8 @@ class _HomePageState extends State<HomePage> {
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  await _openInMaps(address['logradouro'], address['localidade']);
+                  await _openInMaps(
+                      '${address['logradouro']}, ${address['localidade']}, ${address['uf']}, Brasil');
                 },
                 child: const Text('Abrir no Mapa'),
               ),
@@ -150,7 +191,8 @@ class _HomePageState extends State<HomePage> {
         builder: (context) {
           return AlertDialog(
             title: const Text('Erro'),
-            content: const Text('Falha ao buscar o CEP. Verifique e tente novamente.'),
+            content: const Text(
+                'Falha ao buscar o CEP. Verifique e tente novamente.'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -164,62 +206,4 @@ class _HomePageState extends State<HomePage> {
       );
     }
   }
-
-Future<void> _openInMaps(String logradouro, String localidade) async {
-  try {
-    if (logradouro.isEmpty || localidade.isEmpty) {
-      throw 'Logradouro ou localidade estão vazios.';
-    }
-
-    String address = '$logradouro, $localidade, São Paulo, Brasil';
-    print('Endereço para geocodificação: $address');
-
-    // Usando Nominatim API do OpenStreetMap
-    String apiUrl = 'https://nominatim.openstreetmap.org/search?q=$address&format=json';
-    final response = await http.get(Uri.parse(apiUrl));
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      print('Dados recebidos da geocodificação: $data');
-      if (data.isEmpty) {
-        throw 'Nenhuma localização encontrada para o endereço fornecido.';
-      }
-
-      var location = data[0];
-      if (location['lat'] == null || location['lon'] == null) {
-        throw 'Coordenadas nulas recebidas para o endereço fornecido.';
-      }
-
-      double latitude = double.parse(location['lat']);
-      double longitude = double.parse(location['lon']);
-      print('Latitude: $latitude, Longitude: $longitude');
-
-      // Verifica se o Google Maps está disponível
-      bool googleMapsAvailable = false;
-      try {
-        googleMapsAvailable = await MapLauncher.isMapAvailable(MapType.google) ?? false;
-      } catch (e) {
-        print('Erro ao verificar a disponibilidade do Google Maps: $e');
-      }
-
-      print('Google Maps disponível: $googleMapsAvailable');
-
-      if (googleMapsAvailable) {
-        await MapLauncher.showMarker(
-          mapType: MapType.google,
-          coords: Coords(latitude, longitude),
-          title: address,
-          description: "Endereço buscado",
-        );
-      } else {
-        print('Google Maps não está disponível.');
-      }
-    } else {
-      throw 'Erro na solicitação: ${response.statusCode}';
-    }
-  } catch (e) {
-    print('Erro ao abrir o mapa: $e');
-  }
-}
-
 }
