@@ -19,6 +19,7 @@ dependencies:
   path_provider_foundation: ^2.4.0
   map_launcher: ^3.5.0
   geocoding: ^3.0.0
+  http: ^0.13.3
 
 dev_dependencies:
   flutter_test:

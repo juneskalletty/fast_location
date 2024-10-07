@@ -1,9 +1,14 @@
 import 'package:fast_location/src/modules/home/page/cep_history_page.dart';
 import 'package:fast_location/src/modules/home/page/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:fast_location/src/models/cep_history.dart';
 
-void main() {
-  runApp(const App());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(CepHistoryAdapter());
+  runApp(App());
 }
 
 class App extends StatelessWidget {
@@ -17,7 +22,7 @@ class App extends StatelessWidget {
         primarySwatch: Colors.green,
         useMaterial3: true,
       ),
-      home: const HomePage(title: 'Fast Location'),
+      home: const HomePage(title: ''),
       routes: {
         '/history': (context) => const CepHistoryPage(),
       },
