@@ -21,11 +21,22 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.location_on, size: 50, color: Colors.green),
-            const SizedBox(height: 20),
-            const Text(
-              'Faça uma busca para localizar seu destino',
-              style: TextStyle(fontSize: 18),
+            // Bloco com o texto "Faça uma busca para localizar seu destino"
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'Faça uma busca para localizar seu destino',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -37,6 +48,47 @@ class HomePage extends StatelessWidget {
                 foregroundColor: Colors.white,
               ),
               child: const Text('Localizar endereço'),
+            ),
+            const SizedBox(height: 20),
+            // Alinhamento central do título "Últimos endereços localizados"
+            const Text(
+              'Últimos endereços localizados',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.green,
+              ),
+              textAlign: TextAlign.center, // Alinhando o texto ao centro
+            ),
+            const SizedBox(height: 10),
+            // Bloco para exibição de locais recentes ou a mensagem "Não há locais recentes"
+            FutureBuilder<String?>(
+              future: getLastSearchedAddress(), // função que retorna o último endereço consultado
+              builder: (context, snapshot) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: snapshot.hasData && snapshot.data!.isNotEmpty
+                      ? Text(
+                          snapshot.data!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        )
+                      : const Text(
+                          'Não há locais recentes',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                );
+              },
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -53,6 +105,26 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Função que busca o último endereço consultado
+  Future<String?> getLastSearchedAddress() async {
+    final history = await getCepHistory();
+    if (history.isNotEmpty) {
+      final lastAddress = history.last;
+      return "${lastAddress.logradouro}, ${lastAddress.localidade}";
+    }
+    return null;
+  }
+
+  // Função que busca o último endereço consultado
+  Future<String?> getLastSearchedAddress() async {
+    final history = await getCepHistory();
+    if (history.isNotEmpty) {
+      final lastAddress = history.last;
+      return "${lastAddress.logradouro}, ${lastAddress.localidade}";
+    }
+    return null;
   }
 
   void _showCepInputDialog(BuildContext context) {
@@ -153,7 +225,6 @@ class HomePage extends StatelessWidget {
   Future<void> _openInMaps(String logradouro, String localidade) async {
     try {
       List<Location> locations = await locationFromAddress('$logradouro, $localidade');
-
       if (locations.isNotEmpty) {
         Location location = locations.first;
 
