@@ -8,7 +8,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(CepHistoryAdapter());
-  runApp(App());
+  runApp(const App());
 }
 
 class App extends StatelessWidget {
